@@ -68,6 +68,7 @@ public class NavigationTabStrip extends View implements ViewPager.OnPageChangeLi
     private final static int DEFAULT_ACTIVE_COLOR = Color.WHITE;
     private final static int DEFAULT_STRIP_COLOR = Color.RED;
     private final static int DEFAULT_TITLE_SIZE = 0;
+    private final static boolean DEFAULT_TITLE_BOLD = false;
 
     // Title size offer to view height
     private final static float TITLE_SIZE_FRACTION = 0.35F;
@@ -117,6 +118,8 @@ public class NavigationTabStrip extends View implements ViewPager.OnPageChangeLi
     private float mTabSize;
     // Tab title size and margin
     private float mTitleSize;
+    //Tab title bold if possible with Paint
+    private boolean mTitleBold;
     // Strip type and gravity
     private StripType mStripType;
     private StripGravity mStripGravity;
@@ -179,6 +182,9 @@ public class NavigationTabStrip extends View implements ViewPager.OnPageChangeLi
             );
             setTitleSize(
                     typedArray.getDimension(R.styleable.NavigationTabStrip_nts_size, DEFAULT_TITLE_SIZE)
+            );
+            setTitleBold(
+                    typedArray.getBoolean(R.styleable.NavigationTabStrip_nts_bold, DEFAULT_TITLE_BOLD)
             );
             setStripWeight(
                     typedArray.getDimension(R.styleable.NavigationTabStrip_nts_weight, DEFAULT_STRIP_WEIGHT)
@@ -403,6 +409,16 @@ public class NavigationTabStrip extends View implements ViewPager.OnPageChangeLi
         postInvalidate();
     }
 
+    public boolean getTitleBold(){
+        return mTitleBold;
+    }
+
+    public void setTitleBold(final boolean titleBold) {
+        mTitleBold = titleBold;
+        mTitlePaint.setFakeBoldText(titleBold);
+        postInvalidate();
+    }
+
     public OnTabStripSelectedIndexListener getOnTabStripSelectedIndexListener() {
         return mOnTabStripSelectedIndexListener;
     }
@@ -502,8 +518,11 @@ public class NavigationTabStrip extends View implements ViewPager.OnPageChangeLi
         // This check gives us opportunity to have an non selected tab
         if (mIndex == INVALID_INDEX) force = true;
 
+        //Don't do,lets see if this helps us fix bug when reselcting selected tab doesnt fire listener
+//         {
         // Detect if last is the same
-        if (index == mIndex) return;
+//         if (index == mIndex) return;
+//     }
 
         // Snap index to tabs size
         index = Math.max(0, Math.min(index, mTitles.length - 1));
@@ -681,11 +700,7 @@ public class NavigationTabStrip extends View implements ViewPager.OnPageChangeLi
                 else if (i == mIndex) updateLastTitle(lastInterpolation);
             }
 
-            canvas.drawText(
-                    title, leftTitleOffset,
-                    topTitleOffset + (mStripGravity == StripGravity.TOP ? mStripWeight : 0.0F),
-                    mTitlePaint
-            );
+           canvas.drawText(title, leftTitleOffset, topTitleOffset + (mStripGravity == StripGravity.TOP ? mStripWeight : 0.0F), mTitlePaint);
         }
     }
 
